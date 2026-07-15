@@ -60,7 +60,8 @@ RUN groupadd --gid 1001 appgroup \
 # Copy pre-built wheels from the builder stage and install them (no compiler needed here)
 COPY --from=builder /build/wheels /wheels
 COPY requirements.txt .
-RUN pip install --upgrade "pip>=26.0" `n    && pip install --no-index --find-links=/wheels -r requirements.txt \
+RUN pip install --upgrade "pip>=26.0" \
+    && pip install --no-index --find-links=/wheels -r requirements.txt \
     && rm -rf /wheels requirements.txt
 
 # Copy application source last (changes most often -> keeps layers cache-friendly)
