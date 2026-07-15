@@ -14,7 +14,6 @@ on:
 env:
   IMAGE_NAME: devops-assessment-app
   REGISTRY: docker.io
-  DOCKERHUB_NAMESPACE: ${{ secrets.DOCKERHUB_USERNAME }}
   KUBE_NAMESPACE: app-production
   HELM_RELEASE_NAME: devops-assessment-app-production
   HELM_CHART_PATH: ./helm
@@ -63,7 +62,7 @@ jobs:
           fi
 
           echo "tag=${NEW_TAG}" >> "$GITHUB_OUTPUT"
-          echo "full_image=${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}:${NEW_TAG}" >> "$GITHUB_OUTPUT"
+          echo "full_image=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${NEW_TAG}" >> "$GITHUB_OUTPUT"
           echo "Computed version tag: ${NEW_TAG}"
 
       - name: Set up Docker Buildx
@@ -164,8 +163,8 @@ jobs:
 
       - name: Tag and push "latest"
         run: |
-          docker tag ${{ needs.build.outputs.full_image }} ${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
+          docker tag ${{ needs.build.outputs.full_image }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
   # ---------------------------------------------------------------------
   # 4. Deploy via Helm, run smoke tests, roll back automatically on failure.
@@ -222,7 +221,7 @@ jobs:
             if helm upgrade --install ${{ env.HELM_RELEASE_NAME }} ${{ env.HELM_CHART_PATH }} \
               --namespace ${{ env.KUBE_NAMESPACE }} \
               --create-namespace \
-              --set image.repository=${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }} \
+              --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} \
               --set image.tag=${{ needs.build.outputs.image_tag }} \
               --set env[1].name=APP_VERSION \
               --set env[1].value=${{ needs.build.outputs.image_tag }} \
