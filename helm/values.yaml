@@ -7,7 +7,7 @@
 replicaCount: 2
 
 image:
-  repository: your-dockerhub-username/devops-assessment-app
+  repository: megha474/devops-assessment-app
   pullPolicy: IfNotPresent
   # Overridden by CI/CD with the semantic version tag (e.g. v1.2.3)
   tag: "latest"
