@@ -37,7 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.version.outputs.tag }}
-      full_image: ${{ steps.version.outputs.full_image }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -159,11 +158,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push versioned tag
-        run: docker push ${{ needs.build.outputs.full_image }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image_tag }}
 
       - name: Tag and push "latest"
         run: |
-          docker tag ${{ needs.build.outputs.full_image }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image_tag }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
   # ---------------------------------------------------------------------
